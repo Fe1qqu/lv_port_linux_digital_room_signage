@@ -88,7 +88,7 @@ jobs:
           /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build && cp build/bin/lvglsim /workdir/artifacts/sdl/lvglsim_${{ matrix.os.image }}"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lvglsim-binaries
           path: artifacts/
