@@ -7,10 +7,10 @@ jobs:
     strategy:
       matrix:
         os:
-          - { image: "debian:bullseye", dockerfile: "Dockerfile_DEBIAN" }
-          - { image: "debian:bookworm", dockerfile: "Dockerfile_DEBIAN" }
-          - { image: "ubuntu:22.04", dockerfile: "Dockerfile_DEBIAN" }
-          - { image: "ubuntu:24.04", dockerfile: "Dockerfile_DEBIAN" }
+          - { image: "debian:bullseye", dockerfile: "Dockerfile_DEBIAN", name_safe: "debian-bullseye" }
+          - { image: "debian:bookworm", dockerfile: "Dockerfile_DEBIAN", name_safe: "debian-bookworm" }
+          - { image: "ubuntu:22.04", dockerfile: "Dockerfile_DEBIAN", name_safe: "ubuntu-22.04" }
+          - { image: "ubuntu:24.04", dockerfile: "Dockerfile_DEBIAN", name_safe: "ubuntu-24.04" }
       fail-fast: false
 
     runs-on: ubuntu-24.04
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -29,15 +29,21 @@ jobs:
           docker build \
             --build-arg BASE_OS=${{ matrix.os.image }} \
             -f docker/${{ matrix.os.dockerfile }} \
-            -t test_${{ matrix.os.image }} .
+            -t test_${{ matrix.os.name_safe }} .
 
       - name: FBDEV Test building the project
         run: |
           sed -i "s/^#define LV_USE_LINUX_FBDEV.*$/#define LV_USE_LINUX_FBDEV 1/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_LINUX_DRM.*$/#define LV_USE_LINUX_DRM 0/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_SDL.*$/#define LV_USE_SDL 0/g" lv_conf.h && \
-          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.image }} \
-          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build && ldd build/bin/lvglsim"
+          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.name_safe }} \
+          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build"
+      
+      - name: Upload FBDEV binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: lvglsim-${{ matrix.os.name_safe }}-fbdev
+          path: build/bin/lvglsim
 
       - name: DRM Test building the project
         run: |
@@ -45,8 +51,14 @@ jobs:
           sed -i "s/^#define LV_USE_LINUX_FBDEV.*$/#define LV_USE_LINUX_FBDEV 0/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_LINUX_DRM.*$/#define LV_USE_LINUX_DRM 1/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_SDL.*$/#define LV_USE_SDL 0/g" lv_conf.h && \
-          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.image }} \
-          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build && ldd build/bin/lvglsim"
+          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.name_safe }} \
+          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build"
+
+      - name: Upload DRM binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: lvglsim-${{ matrix.os.name_safe }}-drm
+          path: build/bin/lvglsim
 
       - name: SDL Test building the project
         run: |
@@ -54,6 +66,11 @@ jobs:
           sed -i "s/^#define LV_USE_LINUX_FBDEV.*$/#define LV_USE_LINUX_FBDEV 0/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_LINUX_DRM.*$/#define LV_USE_LINUX_DRM 0/g" lv_conf.h && \
           sed -i "s/^#define LV_USE_SDL.*$/#define LV_USE_SDL 1/g" lv_conf.h && \
-          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.image }} \
-          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build && ldd build/bin/lvglsim"
+          docker run --rm -v "$(pwd)":/workdir -t test_${{ matrix.os.name_safe }} \
+          /bin/bash -ec "cmake -DCMAKE_C_FLAGS=-Werror -B build -S . && make -j -C build"
 
+      - name: Upload SDL binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: lvglsim-${{ matrix.os.name_safe }}-sdl
+          path: build/bin/lvglsim
