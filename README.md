@@ -1,6 +1,6 @@
 # lvgl-linux-port
 
-This repository is a fork of the original `lv_port_linux` project, adapted for building and running the LVGL framework on Linux systems and microcomputers as part of the Digital Room Signage project. It is optimized for displaying classroom schedules on low-power devices.
+This repository is a fork of the original `lv_port_linux` project, adapted for building and running the LVGL framework on Linux systems and microcomputers as part of the Digital Room Signage project.
 
 ## Purpose
 
