@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "lvgl/lvgl.h"
-// #include "lvgl/demos/lv_demos.h"
 
 #include "src/lib/driver_backends.h"
 #include "src/lib/simulator_util.h"
@@ -13,6 +12,8 @@
 
 #include "schedule_ui.h"
 #include "time_date_display.h"
+#include "schedule_data.h"
+#include "config.h"
 #include <time.h>
 
 /* Internal functions */
@@ -136,6 +137,15 @@ int main(int argc, char **argv)
     /* Initialize LVGL. */
     lv_init();
 
+    char* room_id = read_room_id_from_config("config.json");
+    if (!room_id)
+    {
+        fprintf(stderr, "Failed to read roomId from config\n");
+        return -1;
+    }
+    set_room_id(room_id);
+    free(room_id);
+    
     /* Initialize the configured backend */
     if (driver_backends_init_backend(selected_backend) == -1) {
         die("Failed to initialize display backend");
@@ -154,9 +164,6 @@ int main(int argc, char **argv)
 
     // Create minute timer (check every second for minute change)
     minute_timer = lv_timer_create(minute_tick, 1000, NULL);
-
-    // lv_demo_widgets();
-    // lv_demo_widgets_start_slideshow();
 
     /* Enter the run loop of the selected backend */
     driver_backends_run_loop();
