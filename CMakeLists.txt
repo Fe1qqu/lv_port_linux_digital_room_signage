@@ -23,6 +23,14 @@ set(LV_BUILD_SET_CONFIG_OPTS ON CACHE BOOL
 
 add_subdirectory(lvgl)
 
+# Search libcurl
+find_package(CURL REQUIRED)
+if (CURL_FOUND)
+    message("Found libcurl: ${CURL_INCLUDE_DIRS}, ${CURL_LIBRARIES}")
+else()
+    message(FATAL_ERROR "libcurl not found. Please install libcurl4-openssl-dev or equivalent.")
+endif()
+
 if (CONFIG_LV_USE_EVDEV)
     message("Including EVDEV support")
     find_package(PkgConfig REQUIRED)
@@ -159,7 +167,7 @@ endif()
 file(GLOB LV_LINUX_SRC src/lib/*.c)
 set(LV_LINUX_INC src/lib)
 
-target_include_directories(lvgl PUBLIC ${PKG_CONFIG_INC})
+target_include_directories(lvgl PUBLIC ${PKG_CONFIG_INC} ${CURL_INCLUDE_DIRS})
 
 add_library(lvgl_linux STATIC ${LV_LINUX_SRC} ${LV_LINUX_BACKEND_SRC})
 
@@ -171,7 +179,7 @@ target_include_directories(lvgl_linux PUBLIC
     ${PROJECT_SOURCE_DIR}/src/lib ${LVGL_CONF_INC_DIR})
 
 # Link LVGL with external dependencies - Modern CMake/CMP0079 allows this
-target_link_libraries(lvgl PUBLIC ${PKG_CONFIG_LIB} m pthread)
+target_link_libraries(lvgl PUBLIC ${PKG_CONFIG_LIB} m pthread ${CURL_LIBRARIES})
 
 add_executable(lvglsim
     src/main.c
@@ -185,7 +193,7 @@ add_executable(lvglsim
     ${LV_LINUX_SRC}
     ${LV_LINUX_BACKEND_SRC}
 )
-target_link_libraries(lvglsim lvgl_linux lvgl)
+target_link_libraries(lvglsim lvgl_linux lvgl ${CURL_LIBRARIES})
 
 if (CONFIG_LV_USE_DRAW_G2D)
     target_link_libraries(lvglsim g2d)
