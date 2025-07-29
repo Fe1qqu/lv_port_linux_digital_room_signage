@@ -178,6 +178,9 @@ add_executable(lvglsim
     src/time_date_display.c
     src/schedule_ui.c
     src/schedule_data.c
+    src/api.c
+    src/config.c
+    src/calendar_icon_light.c
     src/lv_font_my_montserrat_20.c
     ${LV_LINUX_SRC}
     ${LV_LINUX_BACKEND_SRC}
