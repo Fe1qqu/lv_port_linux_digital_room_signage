@@ -182,6 +182,7 @@ target_include_directories(lvgl_linux PUBLIC
 target_link_libraries(lvgl PUBLIC ${PKG_CONFIG_LIB} m pthread ${CURL_LIBRARIES})
 
 add_executable(lvglsim
+    src/cJSON.c
     src/main.c
     src/time_date_display.c
     src/schedule_ui.c
