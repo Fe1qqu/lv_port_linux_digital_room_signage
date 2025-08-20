@@ -190,6 +190,10 @@ add_executable(lvglsim
     src/api.c
     src/config.c
     src/calendar_icon_light.c
+    src/calendar_icon_dark.c
+    src/theme_icon_dark.c
+    src/theme_icon_light.c
+    src/lv_font_my_montserrat_14.c
     src/lv_font_my_montserrat_20.c
     ${LV_LINUX_SRC}
     ${LV_LINUX_BACKEND_SRC}

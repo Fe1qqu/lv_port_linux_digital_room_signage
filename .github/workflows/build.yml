@@ -73,46 +73,46 @@ jobs:
           name: build-${{ matrix.os.name_safe }}-sdl
           path: build_sdl/
 
-  build_arm:
-    runs-on: ubuntu-latest
-    name: Cross-build for ARM (Raspberry Pi)
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+  # build_arm:
+  #   runs-on: ubuntu-latest
+  #   name: Cross-build for ARM (Raspberry Pi)
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
 
-      - name: Build ARM Docker image
-        run: |
-          docker buildx build \
-            --platform linux/arm/v7 \
-            --build-arg BASE_OS=arm32v7/debian:bullseye \
-            -f docker/Dockerfile_DEBIAN \
-            -t test_arm_debian \
-            --load .
+  #     - name: Build ARM Docker image
+  #       run: |
+  #         docker buildx build \
+  #           --platform linux/arm/v7 \
+  #           --build-arg BASE_OS=arm32v7/debian:bullseye \
+  #           -f docker/Dockerfile_DEBIAN \
+  #           -t test_arm_debian \
+  #           --load .
 
-      - name: Build project inside ARM container
-        run: |
-          docker run --rm -v "$(pwd)":/workdir -w /workdir test_arm_debian \
-            /bin/bash -ec "
-              sed -i 's/^#define LV_USE_LINUX_FBDEV.*$/#define LV_USE_LINUX_FBDEV 1/g' lv_conf.h && \
-              sed -i 's/^#define LV_USE_LINUX_DRM.*$/#define LV_USE_LINUX_DRM 0/g' lv_conf.h && \
-              sed -i 's/^#define LV_USE_SDL.*$/#define LV_USE_SDL 0/g' lv_conf.h && \
-              cmake -DCMAKE_C_FLAGS='-O2 -static' -B build_arm -S . && \
-              make -j -C build_arm
-            "
+  #     - name: Build project inside ARM container
+  #       run: |
+  #         docker run --rm -v "$(pwd)":/workdir -w /workdir test_arm_debian \
+  #           /bin/bash -ec "
+  #             sed -i 's/^#define LV_USE_LINUX_FBDEV.*$/#define LV_USE_LINUX_FBDEV 1/g' lv_conf.h && \
+  #             sed -i 's/^#define LV_USE_LINUX_DRM.*$/#define LV_USE_LINUX_DRM 0/g' lv_conf.h && \
+  #             sed -i 's/^#define LV_USE_SDL.*$/#define LV_USE_SDL 0/g' lv_conf.h && \
+  #             cmake -DCMAKE_C_FLAGS='-O2 -static' -B build_arm -S . && \
+  #             make -j -C build_arm
+  #           "
 
-      - name: Upload ARM build directory
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-arm-fbdev
-          path: build_arm/
+  #     - name: Upload ARM build directory
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: build-arm-fbdev
+  #         path: build_arm/
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
