@@ -189,8 +189,7 @@ add_executable(lvglsim
     src/schedule_data.c
     src/api.c
     src/config.c
-    src/calendar_icon_light.c
-    src/calendar_icon_dark.c
+    src/calendar_icon.c
     src/theme_icon_dark.c
     src/theme_icon_light.c
     src/lv_font_my_montserrat_14.c
