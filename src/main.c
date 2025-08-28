@@ -151,6 +151,14 @@ int main(int argc, char **argv)
         die("Failed to initialize display backend");
     }
 
+    /* Set display rotation */
+    lv_display_t* disp = lv_display_get_default();
+    if (disp) {
+        lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
+    } else {
+        die("Failed to get default display");
+    }
+
     /* Enable for EVDEV support */
 #if LV_USE_EVDEV
     if (driver_backends_init_backend("EVDEV") == -1) {
