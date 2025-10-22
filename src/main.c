@@ -71,8 +71,10 @@ static void configure_simulator(int argc, char **argv)
     settings.window_height = atoi(env_h ? env_h : "800");
 
     /* Parse the command-line options. */
-    while ((opt = getopt (argc, argv, "b:fmW:H:BVh")) != -1) {
-        switch (opt) {
+    while ((opt = getopt (argc, argv, "b:fmW:H:BVh")) != -1)
+	{
+        switch (opt)
+		{
         case 'h':
             print_usage();
             exit(EXIT_SUCCESS);
@@ -137,25 +139,38 @@ int main(int argc, char **argv)
     /* Initialize LVGL. */
     lv_init();
 
-    char* room_id = read_room_id_from_config("config.json");
-    if (!room_id)
+    // Read configuration from config.json
+    Config config = read_config("config.json");
+
+    // Check if roomId was successfully read
+    if (!config.roomId)
     {
         fprintf(stderr, "Failed to read roomId from config\n");
         return -1;
     }
-    set_room_id(room_id);
-    free(room_id);
+
+    // Set configuration values
+    set_room_id(config.roomId);
+    set_dark_theme(config.isDarkTheme);
+    set_inactive_duration(config.inactiveDurationMs);
+
+    // Free allocated memory for roomId
+    free(config.roomId);
     
     /* Initialize the configured backend */
-    if (driver_backends_init_backend(selected_backend) == -1) {
+    if (driver_backends_init_backend(selected_backend) == -1)
+	{
         die("Failed to initialize display backend");
     }
 
     /* Set display rotation */
-    lv_display_t* disp = lv_display_get_default();
-    if (disp) {
-        lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
-    } else {
+    lv_display_t* display = lv_display_get_default();
+    if (display)
+	{
+        lv_display_set_rotation(display, LV_DISPLAY_ROTATION_90);
+    }
+	else
+	{
         die("Failed to get default display");
     }
 
